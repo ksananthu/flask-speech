@@ -74,14 +74,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
 $(document).ready(function() {
     function sendLanguages() {
-        let language1 = $("#languageSelect").val();
-        let language2 = $("#languageSelect2").val();
+        let patientLan = $("#languageSelect").val();
+        let workerLan = $("#languageSelect2").val();
 
         $.ajax({
             url: "/get-languages",
             type: "POST",
             contentType: "application/json",
-            data: JSON.stringify({ language1: language1, language2: language2 }),
+            data: JSON.stringify({ patientLan: patientLan, workerLan: workerLan }),
             success: function(response) {
                 console.log("Languages sent successfully:", response);
             },
@@ -93,7 +93,7 @@ $(document).ready(function() {
 
     // Run once when the page loads (only if values exist)
     setTimeout(sendLanguages, 500);
-    
+
     // Call function when the language is selected
     $("#languageSelect, #languageSelect2").change(sendLanguages);
 });

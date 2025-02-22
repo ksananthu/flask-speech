@@ -18,6 +18,10 @@ logging.basicConfig(filename='app.log', level=logging.INFO,
 
 app = Flask(__name__)
 
+# Global variables to store languages
+patientLan = None
+workerLan = None
+
 
 
 @app.route('/')
@@ -50,16 +54,20 @@ def mic_input():
 # Get languages selection from the frontend
 @app.route('/get-languages', methods=['POST'])
 def get_languages():
+    
+    # Access global variables
+    global patientLan, workerLan
+    
     data = request.get_json()
-    language1 = data.get("language1")
-    language2 = data.get("language2")
+    patientLan = data.get("patientLan")
+    workerLan = data.get("workerLan")
 
-    if not language1 or not language2:
+    if not patientLan or not workerLan:
         return jsonify({"error": "Both languages must be provided"}), 400
 
-    app.logger.info(f"Received languages - Patient: {language1}, Health worker: {language2}")
+    app.logger.info(f"Received languages : Patient: {patientLan}, Health worker: {workerLan}")
 
-    return jsonify({"message": "Languages received successfully", "language1": language1, "language2": language2})
+    return jsonify({"message": "Languages received successfully", "patientLan": patientLan, "workerLan": workerLan})
 
 
 # Function to transcribe audio using Google Cloud Speech-to-Text API

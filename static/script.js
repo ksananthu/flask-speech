@@ -1,54 +1,72 @@
-// This script is used to record audio and send it to the server.
+document.addEventListener("DOMContentLoaded", function () {
+    let rec, audioChunks = [];
 
-navigator
-    .mediaDevices
-    .getUserMedia({audio: true})
-    .then(stream => { handlerFunction(stream) });
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => { handlerFunction(stream); });
 
-function handlerFunction(stream) {
-    rec = new MediaRecorder(stream);
-    rec.ondataavailable = e => {
-        audioChunks.push(e.data);
-        if (rec.state == "inactive") {
-            let blob = new Blob(audioChunks, {type: 'audio/mpeg-3'});
-            sendData(blob);
+    function handlerFunction(stream) {
+        rec = new MediaRecorder(stream);
+        rec.ondataavailable = e => {
+            audioChunks.push(e.data);
+            if (rec.state == "inactive") {
+                let blob = new Blob(audioChunks, { type: 'audio/mpeg-3' });
+                sendData(blob, activeMic);
+            }
+        };
+    }
+
+    let activeMic = 1;  // Track which mic is being used
+
+    function sendData(data, micId) {
+        var form = new FormData();
+        form.append('file', data, 'data.mp3');
+        form.append('title', 'data.mp3');
+
+        if (micId === 1) {
+            form.append('language', document.getElementById('languageSelect').value);
+        } else {
+            form.append('language', document.getElementById('languageSelect2').value);
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/save-record',
+            data: form,
+            cache: false,
+            processData: false,
+            contentType: false
+        }).done(function (data) {
+            console.log(data);
+            if (micId === 1) {
+                document.getElementById('transcription').value = data;
+            } else {
+                document.getElementById('transcription2').value = data;
+            }
+        });
+    }
+
+    function toggleRecording(button, micId) {
+        if (rec.state === "inactive") {
+            console.log(`Recording started for mic ${micId}..`);
+            button.classList.add('recording');
+            audioChunks = [];
+            rec.start();
+            activeMic = micId;
+        } else {
+            console.log(`Recording stopped for mic ${micId}.`);
+            button.classList.remove('recording');
+            rec.stop();
         }
     }
-}
 
-function sendData(data) {
-    var form = new FormData();
-    form.append('file', data, 'data.mp3');
-    form.append('title', 'data.mp3');
-    form.append('language', document.getElementById('languageSelect').value);
-    //Chrome inspector shows that the post data includes a file and a title.
-    $.ajax({
-        type: 'POST',
-        url: '/save-record',
-        data: form,
-        cache: false,
-        processData: false,
-        contentType: false
-    }).done(function(data) {
-        console.log(data);
-        document.getElementById('transcription').value = data;
-    });
-}
+    document.getElementById("recordButton").onclick = function () {
+        toggleRecording(this, 1);
+    };
 
-recordButton.onclick = e => {
-    if (rec.state == "inactive") {
-        console.log('Recording started..');
-        // recordButton.textContent = 'Stop recording';
-        recordButton.classList.add('recording');
-        audioChunks = [];
-        rec.start();
-    } else {
-        console.log("Recording stopped.");
-        // recordButton.textContent = 'Start recording';
-        recordButton.classList.remove('recording');
-        rec.stop();
-    }
-};
+    document.getElementById("recordButton2").onclick = function () {
+        toggleRecording(this, 2);
+    };
+});
 
 // Populate the language dropdown and initialize Select2
 $.getJSON('/static/languages.json', function(data) {

@@ -1,3 +1,5 @@
+
+// Record audio from the browser and send it to the server
 document.addEventListener("DOMContentLoaded", function () {
     let rec, audioChunks = [];
 
@@ -71,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 });
 
-
+// Send the selected languages to the server
 $(document).ready(function() {
     function sendLanguages() {
         let patientLan = $("#languageSelect").val();
@@ -97,6 +99,41 @@ $(document).ready(function() {
     // Call function when the language is selected
     $("#languageSelect, #languageSelect2").change(sendLanguages);
 });
+
+
+
+// Play audio in browser
+$(document).ready(function () {
+    function playAudio(buttonId) {
+        $.ajax({
+            url: "/play-audio",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ button_id: buttonId }),
+            xhrFields: {
+                responseType: 'blob' // Expect binary data (MP3)
+            },
+            success: function (blob) {
+                let audioURL = URL.createObjectURL(blob); // Convert to playable URL
+                let audio = new Audio(audioURL);
+                audio.play();
+            },
+            error: function (xhr) {
+                let errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "Nothing to play";
+                alert(errorMessage);
+            }
+        });
+    }
+
+    $("#playTTSButton").click(function () {
+        playAudio("playTTSButton");
+    });
+
+    $("#playTTSButton2").click(function () {
+        playAudio("playTTSButton2");
+    });
+});
+
 
 
 

@@ -10,19 +10,20 @@ document.addEventListener("DOMContentLoaded", function () {
             audioChunks.push(e.data);
             if (rec.state == "inactive") {
                 let blob = new Blob(audioChunks, { type: 'audio/mpeg-3' });
-                sendData(blob, activeMic);
+                sendData(blob, activeButtonId);
             }
         };
     }
 
-    let activeMic = 1;  // Track which mic is being used
+    let activeButtonId = "";  // Track which button is being used
 
-    function sendData(data, micId) {
+    function sendData(data, buttonId) {
         var form = new FormData();
         form.append('file', data, 'data.mp3');
         form.append('title', 'data.mp3');
+        form.append('button_id', buttonId);  // Send button ID
 
-        if (micId === 1) {
+        if (buttonId === "recordButton") {
             form.append('language', document.getElementById('languageSelect').value);
         } else {
             form.append('language', document.getElementById('languageSelect2').value);
@@ -30,14 +31,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         $.ajax({
             type: 'POST',
-            url: '/save-record',
+            url: '/mic-input',
             data: form,
             cache: false,
             processData: false,
             contentType: false
         }).done(function (data) {
-            console.log(data);
-            if (micId === 1) {
+            console.log(`Response from Flask for ${buttonId}:`, data);
+            if (buttonId === "recordButton") {
                 document.getElementById('transcription').value = data;
             } else {
                 document.getElementById('transcription2').value = data;
@@ -45,28 +46,59 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function toggleRecording(button, micId) {
+    function toggleRecording(button) {
+        let buttonId = button.id;  // Get button ID (recordButton or recordButton2)
+
         if (rec.state === "inactive") {
-            console.log(`Recording started for mic ${micId}..`);
+            console.log(`Recording started for ${buttonId}..`);
             button.classList.add('recording');
             audioChunks = [];
             rec.start();
-            activeMic = micId;
+            activeButtonId = buttonId;
         } else {
-            console.log(`Recording stopped for mic ${micId}.`);
+            console.log(`Recording stopped for ${buttonId}.`);
             button.classList.remove('recording');
             rec.stop();
         }
     }
 
     document.getElementById("recordButton").onclick = function () {
-        toggleRecording(this, 1);
+        toggleRecording(this);
     };
 
     document.getElementById("recordButton2").onclick = function () {
-        toggleRecording(this, 2);
+        toggleRecording(this);
     };
 });
+
+
+$(document).ready(function() {
+    function sendLanguages() {
+        let language1 = $("#languageSelect").val();
+        let language2 = $("#languageSelect2").val();
+
+        $.ajax({
+            url: "/get-languages",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({ language1: language1, language2: language2 }),
+            success: function(response) {
+                console.log("Languages sent successfully:", response);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error sending languages:", error);
+            }
+        });
+    }
+
+    // Run once when the page loads (only if values exist)
+    setTimeout(sendLanguages, 500);
+    
+    // Call function when the language is selected
+    $("#languageSelect, #languageSelect2").change(sendLanguages);
+});
+
+
 
 // Populate the language dropdown and initialize Select2
 $.getJSON('/static/languages.json', function(data) {

@@ -45,6 +45,14 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 document.getElementById('transcription2').value = data;
             }
+        }).fail(function (xhr) {
+            let errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "";
+            alert(errorMessage); // Show popup error message
+            if (buttonId === "recordButton") {
+                document.getElementById('transcription').value = errorMessage;
+            } else {
+                document.getElementById('transcription2').value = errorMessage;
+            }
         });
     }
 
@@ -119,7 +127,7 @@ $(document).ready(function () {
                 audio.play();
             },
             error: function (xhr) {
-                let errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "Nothing to play";
+                let errorMessage = xhr.responseJSON && xhr.responseJSON.error ? xhr.responseJSON.error : "⚠️ Translation not available!";
                 alert(errorMessage);
             }
         });

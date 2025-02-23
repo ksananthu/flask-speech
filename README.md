@@ -216,5 +216,5 @@ python app.py
 
 ### 🌐 Access the Web Interface
 
-- Open `http://192.168.10.100:9045` in your browser.
+- Open `https://0.0.0.0:8080` in your browser.
 

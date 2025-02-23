@@ -37,6 +37,7 @@ if not os.path.exists(log_dir):
 
 log_file = os.path.join(log_dir, "app.log")
 # Logging configuration
+
 logging.basicConfig(filename=log_file,
                     level=logging.INFO, 
                     format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')

@@ -79,9 +79,9 @@ def play_audio():
     button_id = data.get('button_id')
 
     if button_id == "playTTSButton":
-        file_path = './audio/patient.mp3'
+        file_path = './tmp/patient.mp3'
     elif button_id == "playTTSButton2":
-        file_path = './audio/healthworker.mp3'
+        file_path = './tmp/healthworker.mp3'
     else:
         return jsonify({"error": "Invalid button ID"}), 400
 
@@ -125,9 +125,9 @@ def get_languages():
 
 def delete_all_audio_files():
     """
-    Deletes all audio files inside the 'audio/' directory.
+    Deletes all audio files inside the '/tmp/' directory.
     """
-    audio_dir = './audio/'
+    audio_dir = './tmp/'
 
     if not os.path.exists(audio_dir):
         app.logger.info("Audio directory does not exist.")
@@ -201,7 +201,7 @@ def post_transcription_action(transcript, src_language, micId):
         identity = "healthworker"
     
     tar_language = str(tar_language)[:2]
-    filename = f"./audio/{identity}.mp3"
+    filename = f"./tmp/{identity}.mp3"
     
     translated_txt = translate_text(transcript, src_language, tar_language)
     
@@ -252,9 +252,9 @@ def delete_file_or_directory(micId):
     """
     
     if micId == "recordButton": # recordButton is for patient & replayButton2 is for health worker
-        path = './audio/patient.mp3'
+        path = './tmp/patient.mp3'
     else:
-        path = './audio/healthworker.mp3'
+        path = './tmp/healthworker.mp3'
     
     try:
         if os.path.isfile(path):  # Check if it's a file

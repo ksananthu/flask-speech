@@ -5,15 +5,17 @@ from gtts import gTTS # type: ignore
 from flask import Flask, request, redirect, jsonify,  Response # type: ignore
 from google.cloud import speech
 from googletrans import Translator # type: ignore
+from dotenv import load_dotenv
 import logging
 
+load_dotenv()
 
-
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] ='key/hopeful-hold-451623-t5-6b41c7741e03.json'
+credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 
 
 # Logging configuration
-logging.basicConfig(filename='app.log', level=logging.INFO, 
+logging.basicConfig(filename='log/app.log', level=logging.INFO, 
                     format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 
@@ -27,6 +29,7 @@ workerLan = None
 
 @app.route('/')
 def root():
+    delete_all_audio_files()
     return app.send_static_file('index.html')
 
 
@@ -41,21 +44,29 @@ def mic_input():
     # check if the post request has the file part
     if 'file' not in request.files:
         app.logger.error('ERROR ====> Nothing to transcribe')
-        return redirect(request.url)
+        return jsonify({"error": "⚠️ No speech detected. Please try again."}), 400
     
     file = request.files['file']
     src_language = request.form.get('language')
     micId = request.form.get('button_id')
     
     file_data = file.read()
+    # if file_data 
     transcript = transcribe_audio(file_data, src_language)
-    app.logger.info(f'INFO ====> {micId}: {transcript}')
+
+    if transcript:
+        app.logger.info(f'INFO ====> {micId}: {transcript}')
+        #Run translation & TTS processing in the background using threading
+        thread = threading.Thread(target=post_transcription_action, args=(transcript, src_language, micId))
+        thread.start()
+        
+        return transcript
+    else:
+        delete_file_or_directory(micId)
+        app.logger.error("⚠️ No speech detected or Change change language and try again.")
+        return jsonify({"error": "⚠️ No speech detected or Language is not recognized ."}), 400
     
-    #Run translation & TTS processing in the background using threading
-    thread = threading.Thread(target=post_transcription_action, args=(transcript, src_language, micId))
-    thread.start()
     
-    return transcript
 
 
 @app.route('/play-audio', methods=['POST'])
@@ -84,6 +95,7 @@ def play_audio():
     else:
         app.logger.error("Audio file not found")
         return jsonify({"error": "Audio file not found"}), 404
+        
 
 
 
@@ -108,6 +120,27 @@ def get_languages():
     app.logger.info(f"Received languages : Patient: {patientLan}, Health worker: {workerLan}")
 
     return jsonify({"message": "Languages received successfully", "patientLan": patientLan, "workerLan": workerLan})
+
+
+
+def delete_all_audio_files():
+    """
+    Deletes all audio files inside the 'audio/' directory.
+    """
+    audio_dir = './audio/'
+
+    if not os.path.exists(audio_dir):
+        app.logger.info("Audio directory does not exist.")
+        return
+
+    try:
+        for file in os.listdir(audio_dir):
+            file_path = os.path.join(audio_dir, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                app.logger.info(f"Deleted: {file_path}")
+    except Exception as e:
+        app.logger.error(f"Error deleting audio files: {e}")
 
 
 # Function to transcribe audio using Google Cloud Speech-to-Text API
@@ -136,6 +169,7 @@ def transcribe_audio(file_data, src_language):
     transcript = ''
     for result in response.results:
         transcript += result.alternatives[0].transcript
+        
 
     return transcript
 

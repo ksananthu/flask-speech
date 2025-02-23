@@ -1,3 +1,5 @@
+/* Optimized & Responsive CSS */
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -14,17 +16,17 @@ body {
     flex-wrap: wrap;
     gap: 20px;
     width: 100%;
-    height: 100%;
     max-width: 1200px;
     box-sizing: border-box;
+    padding: 10px;
 }
 
 .container {
     flex: 1;
-    min-width: 300px;
+    min-width: 280px;
     background: #fff;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     box-sizing: border-box;
     display: flex;
@@ -32,28 +34,56 @@ body {
     justify-content: space-between;
 }
 
+/* Form Group - Aligns elements */
 .form-group {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    width: 100%;
+    gap: 10px;
+    padding: 5px 0;
 }
 
-label {
-    margin-right: 10px;
-}
-
+/* Select Dropdown - Improved Appearance */
 #languageSelect, #languageSelect2 {
-    flex: 1;
-    border-radius: 8px;
-    padding: 5px;
-    width: auto;
+    flex: none;
+    width: 40%;
+    min-width: 120px;
+    max-width: 200px;
+    border-radius: 6px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    background-color: #ffffff;
+    text-align: center;
+    cursor: pointer;
+    transition: border 0.3s ease-in-out, box-shadow 0.2s;
 }
 
+#languageSelect:hover, #languageSelect2:hover {
+    border-color: rgb(51, 122, 168);
+    box-shadow: 0 0 6px rgba(51, 122, 168, 0.3);
+}
+
+/* Text Areas - Adjusted for 5 Lines */
+#transcription, #transcription2 {
+    width: 100%;
+    flex-grow: 1;
+    padding: 12px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    resize: none;
+    box-sizing: border-box;
+    height: 110px; /* Adjusted to fit ~5 lines of text */
+    max-height: 400px;
+    line-height: 1.4; /* Ensures proper spacing between lines */
+}
+
+/* Buttons (Record & Play) */
 #recordButton, #recordButton2, #playTTSButton, #playTTSButton2 {
     width: 50px;
     height: 50px;
-    padding: 0;
-    font-size: 24px;
+    font-size: 22px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -62,69 +92,71 @@ label {
     color: white;
     border: none;
     cursor: pointer;
-    margin: 10px auto 0;
+    transition: background 0.3s ease-in-out, transform 0.2s;
 }
 
-#recordButton i, #recordButton2 i {
-    margin: 0;
+#recordButton:hover, #recordButton2:hover,
+#playTTSButton:hover, #playTTSButton2:hover {
+    transform: scale(1.1);
 }
 
+/* Microphone Color Change While Recording */
 #recordButton.recording, #recordButton2.recording {
     background-color: red;
 }
 
-#transcription {
-    width: 100%;
-    flex-grow: 1;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: none;
-    box-sizing: border-box;
-}
-
-#transcription2 {
-    width: 100%;
-    flex-grow: 1;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: none;
-    box-sizing: border-box;
-}
-
-.button-container, .button-container2 {
-    display: flex;
-    justify-content: center;  /* Center align the buttons */
-    align-items: center;
-    gap: 15px; /* Space between buttons */
-    margin-top: 10px; /* Adjust spacing */
-}
-
-
+/* Play Button */
 #playTTSButton, #playTTSButton2 {
     background-color: rgb(51, 122, 168);
 }
 
+/* Button Containers */
+.button-container, .button-container2 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
 
+/* Responsive Design */
+@media (max-width: 1024px) {
+    #transcription, #transcription2 {
+        height: 120px;
+    }
+}
 
-
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .container {
-        width: 100%;
-        padding: 10px;
+        width: 95%;
+        padding: 15px;
     }
     #languageSelect, #languageSelect2 {
+        width: 45%;
         font-size: 14px;
     }
     #recordButton, #recordButton2 {
-        font-size: 14px;
-        padding: 8px;
+        font-size: 18px;
+        width: 45px;
+        height: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    .row-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .container {
+        width: 100%;
+        padding: 12px;
     }
     #transcription, #transcription2 {
         font-size: 14px;
-        height: auto;
+        height: 130px; /* Slightly larger for small screens */
+        max-height: 250px;
+    }
+    #languageSelect, #languageSelect2 {
+        width: 50%;
     }
 }

@@ -3,6 +3,17 @@
         {"code": "en-US", "english_name": "English", "name": "English"},
         {"code": "hi-IN", "english_name": "Hindi", "name": "हिंदी"},
         {"code": "ta-IN", "english_name": "Tamil", "name": "தமிழ்"},
-        {"code": "ml-IN", "english_name": "Malayalam", "name": "മലയാളം"}
+        {"code": "ml-IN", "english_name": "Malayalam", "name": "മലയാളം"},
+        {"code": "te-IN", "english_name": "Telugu", "name": "తెలుగు"},
+        {"code": "kn-IN", "english_name": "Kannada", "name": "ಕನ್ನಡ"},
+        {"code": "mr-IN", "english_name": "Marathi", "name": "मराठी"},
+        {"code": "bn-IN", "english_name": "Bengali", "name": "বাংলা"},
+        {"code": "gu-IN", "english_name": "Gujarati", "name": "ગુજરાતી"},
+        {"code": "pa-IN", "english_name": "Punjabi", "name": "ਪੰਜਾਬੀ"},
+        {"code": "de-DE", "english_name": "German", "name": "Deutsch"},
+        {"code": "ko-KR", "english_name": "Korean", "name": "한국어"},
+        {"code": "zh-CN", "english_name": "Chinese", "name": "中文"},
+        {"code": "ja-JP", "english_name": "Japanese", "name": "日本語"},
+        {"code": "tr-TR", "english_name": "Turkish", "name": "Türkçe"}
     ]
 }

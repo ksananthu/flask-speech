@@ -5,9 +5,13 @@ from gtts import gTTS # type: ignore
 from flask import Flask, request, redirect, jsonify,  Response # type: ignore
 from google.cloud import speech
 from googletrans import Translator # type: ignore
+from dotenv import load_dotenv
 import logging
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] ='key/hopeful-hold-451623-t5-6b41c7741e03.json'
+load_dotenv()
+
+credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 
 
 # Logging configuration

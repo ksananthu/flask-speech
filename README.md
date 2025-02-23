@@ -35,7 +35,6 @@ This Flask-based application enables real-time speech-to-text conversion, transl
 │   ├── languages.json
 │   ├── script.js
 │   └── styles.css
-├── tmp
 └── user-guide.md        
 ```
 

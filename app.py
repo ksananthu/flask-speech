@@ -1,4 +1,5 @@
 import os
+import tempfile
 import threading
 import asyncio
 from gtts import gTTS # type: ignore
@@ -13,6 +14,7 @@ load_dotenv()
 credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
 
+temp_dir = tempfile.mkdtemp()
 
 # Logging configuration
 logging.basicConfig(filename='log/app.log', level=logging.INFO, 
@@ -24,7 +26,6 @@ app = Flask(__name__)
 # Global variables to store languages
 patientLan = None
 workerLan = None
-
 
 
 @app.route('/')
@@ -79,9 +80,9 @@ def play_audio():
     button_id = data.get('button_id')
 
     if button_id == "playTTSButton":
-        file_path = './tmp/patient.mp3'
+        file_path = f'{temp_dir}/patient.mp3'
     elif button_id == "playTTSButton2":
-        file_path = './tmp/healthworker.mp3'
+        file_path = f'{temp_dir}/healthworker.mp3'
     else:
         return jsonify({"error": "Invalid button ID"}), 400
 
@@ -125,9 +126,9 @@ def get_languages():
 
 def delete_all_audio_files():
     """
-    Deletes all audio files inside the '/tmp/' directory.
+    Deletes all audio files inside the '/tmp/' directory. when reloadinfg
     """
-    audio_dir = './tmp/'
+    audio_dir = temp_dir
 
     if not os.path.exists(audio_dir):
         app.logger.info("Audio directory does not exist.")
@@ -201,7 +202,7 @@ def post_transcription_action(transcript, src_language, micId):
         identity = "healthworker"
     
     tar_language = str(tar_language)[:2]
-    filename = f"./tmp/{identity}.mp3"
+    filename = f"{temp_dir}/{identity}.mp3"
     
     translated_txt = translate_text(transcript, src_language, tar_language)
     
@@ -252,9 +253,9 @@ def delete_file_or_directory(micId):
     """
     
     if micId == "recordButton": # recordButton is for patient & replayButton2 is for health worker
-        path = './tmp/patient.mp3'
+        path = f'{temp_dir}/patient.mp3'
     else:
-        path = './tmp/healthworker.mp3'
+        path = f'{temp_dir}/healthworker.mp3'
     
     try:
         if os.path.isfile(path):  # Check if it's a file
@@ -299,5 +300,6 @@ def text_to_speech(text, filename, lang):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='192.168.10.100', port=9045, ssl_context=('./key/cert.pem', './key/key.pem'))
+    # app.run(debug=True, host='192.168.10.100', port=9045, ssl_context=('./key/cert.pem', './key/key.pem'))
+    app.run(debug=True, host='0.0.0.0', port=8080, ssl_context=('./key/cert.pem', './key/key.pem'))
     # app.run(debug=True, host='192.168.10.100', port=9045)

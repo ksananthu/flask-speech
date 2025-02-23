@@ -1,4 +1,5 @@
 import os
+import tempfile
 import threading
 import asyncio
 from gtts import gTTS # type: ignore
@@ -8,14 +9,37 @@ from googletrans import Translator # type: ignore
 from dotenv import load_dotenv
 import logging
 
-load_dotenv()
+
+
+# load_dotenv()
+
+# credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
+
+
+# Load .env file only if the variable isn't already set
+if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+    load_dotenv()
 
 credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
+
+if credentials_path:
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+else:
+    raise EnvironmentError("GOOGLE_APPLICATION_CREDENTIALS is not set. Make sure to pass it as an env variable.")
 
 
+temp_dir = tempfile.mkdtemp()
+
+log_dir = "log"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, "app.log")
 # Logging configuration
-logging.basicConfig(filename='./log/app.log', level=logging.INFO, 
+
+logging.basicConfig(filename=log_file,
+                    level=logging.INFO, 
                     format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 
@@ -24,7 +48,6 @@ app = Flask(__name__)
 # Global variables to store languages
 patientLan = None
 workerLan = None
-
 
 
 @app.route('/')
@@ -79,9 +102,9 @@ def play_audio():
     button_id = data.get('button_id')
 
     if button_id == "playTTSButton":
-        file_path = './audio/patient.mp3'
+        file_path = f'{temp_dir}/patient.mp3'
     elif button_id == "playTTSButton2":
-        file_path = './audio/healthworker.mp3'
+        file_path = f'{temp_dir}/healthworker.mp3'
     else:
         return jsonify({"error": "Invalid button ID"}), 400
 
@@ -125,9 +148,9 @@ def get_languages():
 
 def delete_all_audio_files():
     """
-    Deletes all audio files inside the 'audio/' directory.
+    Deletes all audio files inside the '/tmp/' directory. when reloadinfg
     """
-    audio_dir = './audio/'
+    audio_dir = temp_dir
 
     if not os.path.exists(audio_dir):
         app.logger.info("Audio directory does not exist.")
@@ -201,7 +224,7 @@ def post_transcription_action(transcript, src_language, micId):
         identity = "healthworker"
     
     tar_language = str(tar_language)[:2]
-    filename = f"./audio/{identity}.mp3"
+    filename = f"{temp_dir}/{identity}.mp3"
     
     translated_txt = translate_text(transcript, src_language, tar_language)
     
@@ -252,9 +275,9 @@ def delete_file_or_directory(micId):
     """
     
     if micId == "recordButton": # recordButton is for patient & replayButton2 is for health worker
-        path = './audio/patient.mp3'
+        path = f'{temp_dir}/patient.mp3'
     else:
-        path = './audio/healthworker.mp3'
+        path = f'{temp_dir}/healthworker.mp3'
     
     try:
         if os.path.isfile(path):  # Check if it's a file
@@ -298,6 +321,19 @@ def text_to_speech(text, filename, lang):
 
 
 
+# if __name__ == '__main__':
+#     # app.run(debug=True, host='192.168.10.100', port=9045, ssl_context=('./key/cert.pem', './key/key.pem'))
+#     app.run(debug=True, host='0.0.0.0', port=8080, ssl_context=('./key/cert.pem', './key/key.pem'))
+#     # app.run(host='0.0.0.0', port=8080)
+
+
+key_dir = "./key"
+ssl_enabled = os.path.exists(key_dir) and os.path.isfile(os.path.join(key_dir, "cert.pem")) and os.path.isfile(os.path.join(key_dir, "key.pem"))
+
 if __name__ == '__main__':
-    app.run(debug=True, host='192.168.10.100', port=9045, ssl_context=('./key/cert.pem', './key/key.pem'))
-    # app.run(debug=True, host='192.168.10.100', port=9045)
+    if ssl_enabled:
+        app.logger.info("🔒 SSL enabled: Running with HTTPS")
+        app.run(debug=True, host='0.0.0.0', port=8080, ssl_context=('./key/cert.pem', './key/key.pem'))
+    else:
+        app.logger.info("⚠️ SSL not found: Running without HTTPS")
+        app.run(host='0.0.0.0', port=8080)

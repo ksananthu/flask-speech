@@ -20,10 +20,10 @@ This application facilitates communication between **patients** and **health wor
 # 🏗 **How to Use the App**  
 
 ## **1️⃣ Open the App**  
-- Open a web browser and go to `http://192.168.10.100:9045`.  
+- Open a web browser and go to `http://0.0.0.0:9045`.  
 - The **homepage** will display two sections:  
-  - **Patient's Panel** (Left)  
-  - **Health Worker's Panel** (Right)  
+  - **Patient's Panel**  
+  - **Health Worker's Panel**  
 
 ## **2️⃣ Select Your Language**  
 - Click on the **dropdown menu** under each section.  
@@ -40,7 +40,6 @@ This application facilitates communication between **patients** and **health wor
 
 ## **5️⃣ Translate the Speech**  
 - Once transcription is complete, the app will **automatically translate** the text into the other language.  
-- The translated text will appear in the **opposite panel** (e.g., patient’s words appear in the health worker’s section).  
 
 ## **6️⃣ Listen to the Translated Speech**  
 - Click the **📢 Speaker Button** to hear the translated speech.  

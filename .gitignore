@@ -175,5 +175,5 @@ cython_debug/
 
 # My settings
 key/
-audio/
+tmp/
 .vscode/

@@ -9,15 +9,37 @@ from googletrans import Translator # type: ignore
 from dotenv import load_dotenv
 import logging
 
-load_dotenv()
+
+
+# load_dotenv()
+
+# credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
+
+
+# Load .env file only if the variable isn't already set
+if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+    load_dotenv()
 
 credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credentials_path
+
+if credentials_path:
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+else:
+    raise EnvironmentError("GOOGLE_APPLICATION_CREDENTIALS is not set. Make sure to pass it as an env variable.")
+
 
 temp_dir = tempfile.mkdtemp()
 
+log_dir = "log"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(log_dir, "app.log")
 # Logging configuration
-logging.basicConfig(filename='log/app.log', level=logging.INFO, 
+
+logging.basicConfig(filename=log_file,
+                    level=logging.INFO, 
                     format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 
@@ -299,7 +321,19 @@ def text_to_speech(text, filename, lang):
 
 
 
+# if __name__ == '__main__':
+#     # app.run(debug=True, host='192.168.10.100', port=9045, ssl_context=('./key/cert.pem', './key/key.pem'))
+#     app.run(debug=True, host='0.0.0.0', port=8080, ssl_context=('./key/cert.pem', './key/key.pem'))
+#     # app.run(host='0.0.0.0', port=8080)
+
+
+key_dir = "./key"
+ssl_enabled = os.path.exists(key_dir) and os.path.isfile(os.path.join(key_dir, "cert.pem")) and os.path.isfile(os.path.join(key_dir, "key.pem"))
+
 if __name__ == '__main__':
-    # app.run(debug=True, host='192.168.10.100', port=9045, ssl_context=('./key/cert.pem', './key/key.pem'))
-    app.run(debug=True, host='0.0.0.0', port=8080, ssl_context=('./key/cert.pem', './key/key.pem'))
-    # app.run(debug=True, host='192.168.10.100', port=9045)
+    if ssl_enabled:
+        app.logger.info("🔒 SSL enabled: Running with HTTPS")
+        app.run(debug=True, host='0.0.0.0', port=8080, ssl_context=('./key/cert.pem', './key/key.pem'))
+    else:
+        app.logger.info("⚠️ SSL not found: Running without HTTPS")
+        app.run(host='0.0.0.0', port=8080)

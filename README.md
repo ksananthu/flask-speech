@@ -216,5 +216,9 @@ python app.py
 
 ### 🌐 Access the Web Interface
 
+<<<<<<< HEAD
 - Open `https://0.0.0.0:8080` in your browser.
+=======
+- Open `http://0.0.0.0:8080` in your browser.
+>>>>>>> be3c990a92dc0fd58c3ea3283d5ac124cb58f431
 

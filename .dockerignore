@@ -1,0 +1,20 @@
+# Ignore environment files and credentials
+.env
+*.json
+!languages.json  # Keep the language file if needed
+credentials.json  # Avoid storing Google credentials in the image
+
+# Ignore Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+
+
+# my selection of files to ignore
+key/
+README.md
+user-guide.md
+.gitignore
